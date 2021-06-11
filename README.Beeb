@@ -1,0 +1,39 @@
+BeebDoom - version 1.0
+======================
+
+This is a source port of the original id software release of DOOM to the
+BBC Microcomputer with ARM co-processor (ARM7TDMI or ArmNative on the PiTubeDirect),
+this includes the BeebEm emulator which emulates the ARM7TDMI co-processor.
+
+Installation
+============
+
+Create a directory on your ADFS hdd and stick the DOOM executable file in it.
+Add the WAD file you want to play from the following:
+
+* DOOM1/WAD - Shareware data for the original DOOM
+* DOOM/WAD - Original version full game data
+* DOOMU/WAD - Ultimate DOOM full game data
+* DOOM2/WAD - DOOM 2 full game data
+* TNT/WAD - TNT: Evilution game data
+* PLUTONIA/W - The Plutonia Experiment game data (note the truncated name)
+
+You can also load PWAD files by specifying -file <PWAD> on the command line and adding them to the directory
+
+Extra Beeb options
+==================
+
+The game supports the same command line options as the normal DOOM game,
+however it also has a couple of extra options.
+
+-NULA - Uses a Dynamic NULA video palette of 16 colours
+-GREY - Uses a greyscale NULA palette
+
+VideoNULA
+=========
+
+DOOM doesn't require a VideoNULA upgrade, it works perfectly fine with the default VideoULA, and will
+dither its display to fit the default mode 2 colour palette, specifying either -NULA or -GREY will
+enable VideoNULA palettes, the 16 colour reduction can cause the status bar to flicker since it
+can't always use the right colours for the bar at all times, the greyscale version fixes this, at the cost
+of colour in the game.

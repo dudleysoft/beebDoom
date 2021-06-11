@@ -1,0 +1,5 @@
+*.o
+*.WAD
+.vscode/
+build/
+CVS/
