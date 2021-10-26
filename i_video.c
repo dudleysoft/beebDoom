@@ -455,8 +455,11 @@ void I_UpdateNoBlit (void)
 
 void SetupPalette();
 
+boolean hdmi_pal = false;
 boolean nula_pal = false;
 boolean grey_pal = false;
+boolean pi_pal = false;
+
 int beebPal[256];
 int nulaPal[16];
 int palMap[256];
@@ -560,7 +563,7 @@ void I_SetPalette (byte* palette)
 }
 
 //extern int viewheight;
-int lastPalIndices[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+int _lastPalIndices[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
 void SetupPalette()
 {
@@ -621,7 +624,7 @@ void SetupPalette()
 	{
 		for(int j = 0; j < 16; ++j)
 		{
-			if (lastPalIndices[j] == most[i])
+			if (_lastPalIndices[j] == most[i])
 			{
 				allocated[i] = TRUE;
 				used[j] = TRUE;
@@ -643,7 +646,7 @@ void SetupPalette()
 
 			// Place the palette
 			nulaPal[j] = (beebPal[most[i]] & 0xff0f) | (j<<4);
-			lastPalIndices[j] = most[i];
+			_lastPalIndices[j] = most[i];
 			used[j] = TRUE;
 		}
 	}
@@ -653,15 +656,26 @@ void SetupPalette()
 void I_InitGraphics(void)
 {
 #ifndef BEEB_DEBUG
-	 beebScreen_Init(2,BS_INIT_DOUBLE_BUFFER | (nula_pal ? BS_INIT_NULA : 0));
-	 beebScreen_SetGeometry(128,192,TRUE);
-	 beebScreen_UseDefaultScreenBases();
+	 if (hdmi_pal)
+	 	beebScreen_Init(2,BS_INIT_DOUBLE_BUFFER | BS_INIT_RGB2HDMI);
+	 else if (pi_pal)
+	 	beebScreen_Init(13, BS_INIT_PIVDU);
+	 else
+	 	beebScreen_Init(2,BS_INIT_DOUBLE_BUFFER | (nula_pal ? BS_INIT_NULA : 0));
+
+	 if (pi_pal)
+	 	beebScreen_SetGeometry(SCREENWIDTH, SCREENHEIGHT, TRUE);
+	 else
+	 {
+	 	beebScreen_SetGeometry(128,192,TRUE);
+	 	beebScreen_UseDefaultScreenBases();
+	 }
 	 if (nula_pal)
 	 {
 		 beebScreen_SetDefaultNulaRemapColours();
 	 }
 
-	 beebScreen_SetBuffer(screens[0],BS_BUFFER_FORMAT_8BPP,320,200);
+	 beebScreen_SetBuffer(screens[0], BS_BUFFER_FORMAT_8BPP, SCREENWIDTH, SCREENHEIGHT);
 #endif
 }
 

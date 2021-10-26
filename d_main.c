@@ -372,13 +372,15 @@ void D_Display (void)
 //  D_DoomLoop
 //
 extern  boolean         demorecording;
+extern  boolean 		hdmi_pal;
 extern  boolean			nula_pal;
 extern  boolean			grey_pal;
+extern  boolean			pi_pal;
 
 void D_DoomLoop (void)
 {
     if (demorecording)
-	G_BeginRecording ();
+		G_BeginRecording ();
 		
     if (M_CheckParm ("-debugfile"))
     {
@@ -392,11 +394,20 @@ void D_DoomLoop (void)
 	{
 		nula_pal = true;
 	}
+	if (M_CheckParm("-hdmi"))
+	{
+		hdmi_pal = true;
+		nula_pal = true;
+	}
 
 	if (M_CheckParm("-grey"))
 	{
 		grey_pal = true;
 		nula_pal = true;
+	}
+	if (M_CheckParm("-pi"))
+	{
+		pi_pal = true;
 	}
 	
     I_InitGraphics ();
