@@ -28,6 +28,8 @@ however it also has a couple of extra options.
 
 -NULA - Uses a Dynamic NULA video palette of 16 colours
 -GREY - Uses a greyscale NULA palette
+-HDMI - Uses the RGB2HDMI's inband palette to add NULA palette support
+-PI   - Uses the Pi's native framebuffer outputing via the onboard HDMI socket (requires PiTubeDirect hognose)
 
 VideoNULA
 =========
