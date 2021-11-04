@@ -502,7 +502,6 @@ void beebScreen_Init(int mode, int flags)
         // Copy our assembler code to the host
         memcpytoio_slow((void*)beebCodeBase,beebCode_bin,beebCode_bin_len);
 
-        // Copy old WRCHV value into our code
         int wrchv = ReadByteFromIo((void*)WRCHV) + (ReadByteFromIo((void*)&WRCHV[1])<<8);
 
         WriteByteToIo((void*)&beebCodeBase[4],wrchv & 0xff);
@@ -512,10 +511,11 @@ void beebScreen_Init(int mode, int flags)
         WriteByteToIo((void*)WRCHV,((int)beebCodeBase)&0xff);
         WriteByteToIo((void*)&WRCHV[1],((int)beebCodeBase)>>8);
     }
-    else
+
+    if (bsPiVdu)
     {
-        // We need to change to pivdu 2 to only output vdu codes to the frame buffer
-        // otherwise all vdu codes will be sent to the host, this makes palette changes very slow :'(
+        // Dummy VDU to enable the code on the host
+        // _VDU(0);
         _swi(OS_CLI,_IN(0),"PIVDU 2");
     }
 
@@ -535,6 +535,7 @@ void beebScreen_Init(int mode, int flags)
 
     // Use same routine we've made external
     beebScreen_SetMode(mode);
+
 
     if (bsNula)
     {
@@ -569,10 +570,12 @@ void beebScreen_SetUserVector(int vector,int addr)
         WriteByteToIo((void*)&beebCodeBase[USER2V+1],high);
         break;
     case BS_VECTOR_VSYNC:
+        if (bsPiVdu) WriteByteToIo((void*)&beebCodeBase[USER1V-1],0x20);
         WriteByteToIo((void*)&beebCodeBase[VSYNCV],low);
         WriteByteToIo((void*)&beebCodeBase[VSYNCV+1],high);
         break;
     case BS_VECTOR_TIMER:
+        if (bsPiVdu) WriteByteToIo((void*)&beebCodeBase[USER1V-1],0x20);
         WriteByteToIo((void*)&beebCodeBase[TIMERV],low);
         WriteByteToIo((void*)&beebCodeBase[TIMERV+1],high);
         break;
@@ -1366,24 +1369,31 @@ void beebScreen_Flip()
 
 void beebScreen_VSync()
 {
-    _swi(OS_Byte,_IN(0),19);
-
-    // Read frame counter from the beeb
     if (bsPiVdu)
     {
-        int block[2];
-        _swi(OS_Word,_INR(0,1),1,block);
-        bsFrameCounter = (block[0]>>1)&0xff;
+        int next = bsFrameCounter;
+        while (next == bsFrameCounter) {
+            int block[2];
+            _swi(OS_Word,_INR(0,1),1,block);
+            next = (block[0]>>1)&0xff;
+        }
+        bsFrameCounter = next;
     }
     else
     {
+        _swi(OS_Byte,_IN(0),19);
+
+        // Read frame counter from the beeb
         bsFrameCounter = ReadByteFromIo((void*)0x6d);
     }
 }
 
 void beebScreen_Quit()
 {
-    _VDU(BS_CMD_SEND_QUIT);
+    if (!bsPiVdu)
+    {
+        _VDU(BS_CMD_SEND_QUIT);
+    }
     
     // Reset NULA palette
     if (bsNula)

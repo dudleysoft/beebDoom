@@ -255,8 +255,11 @@ _OS_ReadLine:
      SWI OS_ReadLine
      B swret
 _OS_CLI:
+     STMFD r13!,{lr}
      SWI OS_CLI
+     LDMFD r13!,{lr}
      B swret
+     
 _OS_WriteI:
      CMP r12, #0x200
      BGE unswi
